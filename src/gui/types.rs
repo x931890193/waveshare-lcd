@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum DotPixel {
     DotPixel1x1 = 1,
     // 1 x 1
@@ -14,14 +14,14 @@ pub enum DotPixel {
     // 6 X 6
     DotPixel7x7,
     // 7 X 7
-    DotPixel8x8,        // 8 X 8
+    DotPixel8x8,// 8 X 8
 }
 
 #[derive(Debug)]
 pub enum DotStyle {
     DotFillAround = 1,
     // dot pixel 1 x 1
-    DotFillRightup,        // dot pixel 2 X 2
+    DotFillRightup,// dot pixel 2 X 2
 }
 
 
@@ -29,6 +29,7 @@ pub enum DotStyle {
 pub enum LineStyle {
     LineStyleSolid = 0,
     LineStyleDotted,
+    DotFillAround,
 }
 
 #[derive(Debug)]
@@ -39,8 +40,27 @@ pub enum DrawFill {
 
 #[derive(Debug)]
 pub enum MirrorImage {
-    MirrorNone(u16),
-    MirrorHorizontal(u16),
-    MirrorVertical(u16),
-    MirrorOrigin(u16),
+    MirrorNone,
+    MirrorHorizontal,
+    MirrorVertical,
+    MirrorOrigin,
 }
+
+pub const WHITE: u16 = 0xFFFF;
+pub const BLACK: u16 = 0x0000;
+pub const BLUE: u16 = 0x001F;
+pub const BRED: u16 = 0xF81F;
+pub const GRED: u16 = 0xFFE0;
+pub const GBLUE: u16 = 0x07FF;
+pub const RED: u16 = 0xF800;
+pub const MAGENTA: u16 = 0xF81F;
+pub const GREEN: u16 = 0x07E0;
+pub const CYAN: u16 = 0x7FFF;
+pub const YELLOW: u16 = 0xFFE0;
+pub const BROWN: u16 = 0xBC40;
+pub const BRRED: u16 = 0xFC07;
+pub const GRAY: u16 = 0x8430;
+
+pub const IMAGE_BACKGROUND: u16 = WHITE;
+pub const FONT_FOREGROUND: u16 = BLACK;
+pub const FONT_BACKGROUND: u16 = WHITE;
