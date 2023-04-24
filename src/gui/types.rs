@@ -1,29 +1,24 @@
 #[derive(Debug, Clone)]
 pub enum DotPixel {
-    DotPixel1x1 = 1,
-    // 1 x 1
-    DotPixel2x2,
-    // 2 X 2
-    DotPixel3x3,
-    // 3 X 3
-    DotPixel4x4,
-    // 4 X 4
-    DotPixel5x5,
-    // 5 X 5
-    DotPixel6x6,
-    // 6 X 6
-    DotPixel7x7,
-    // 7 X 7
-    DotPixel8x8,// 8 X 8
+    DotPixel1x1 = 1,  // 1 x 1
+    DotPixel2x2,      // 2 X 2
+    DotPixel3x3,     // 3 X 3
+    DotPixel4x4,     // 4 X 4
+    DotPixel5x5,    // 5 X 5
+    DotPixel6x6,    // 6 X 6
+    DotPixel7x7,   // 7 X 7
+    DotPixel8x8,  // 8 X 8
 }
+
+pub const DOT_PIXEL_DFT: DotPixel = DotPixel::DotPixel1x1;
 
 #[derive(Debug)]
 pub enum DotStyle {
-    DotFillAround = 1,
-    // dot pixel 1 x 1
-    DotFillRightup,// dot pixel 2 X 2
+    DotFillAround = 1, // dot pixel 1 x 1
+    DotFillRightup,  // dot pixel 2 X 2
 }
 
+pub const DOT_STYLE_DFT: DotStyle = DotStyle::DOT_FILL_AROUND;
 
 #[derive(Debug)]
 pub enum LineStyle {

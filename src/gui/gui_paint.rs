@@ -1,3 +1,5 @@
+use crate::gui::types::DotPixel::DotPixel1x1;
+use crate::gui::types::DotStyle::DotFillAround;
 use crate::gui::types::LineStyle::{LineStyleDotted, LineStyleSolid};
 use super::types::*;
 
@@ -221,14 +223,14 @@ impl Paint {
                     break;
                 } else {
                     for s_county in 0..y_current {
-                        self.paint_draw_point(x_center + x_current, y_center + s_county, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center - x_current, y_center + s_county, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center - s_county, y_center + x_current, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center - s_county, y_center - x_current, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center - x_current, y_center - s_county, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center + x_current, y_center - s_county, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center + s_county, y_center - x_current, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
-                        self.paint_draw_point(x_center + s_county, y_center + x_current, color, DOT_STYLE_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center + x_current, y_center + s_county, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center - x_current, y_center + s_county, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center - s_county, y_center + x_current, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center - s_county, y_center - x_current, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center - x_current, y_center - s_county, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center + x_current, y_center - s_county, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center + s_county, y_center - x_current, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
+                        self.paint_draw_point(x_center + s_county, y_center + x_current, color, DOT_PIXEL_DFT, DOT_STYLE_DFT);
                     }
                     if esp < 0 {
                         esp += 4 * x_current + 6;
@@ -244,14 +246,14 @@ impl Paint {
                 if x_current <= y_current {
                     break;
                 }
-                Paint_DrawPoint(X_Center + XCurrent, Y_Center + YCurrent, Color, Line_width, DOT_STYLE_DFT);//1
-                Paint_DrawPoint(X_Center - XCurrent, Y_Center + YCurrent, Color, Line_width, DOT_STYLE_DFT);//2
-                Paint_DrawPoint(X_Center - YCurrent, Y_Center + XCurrent, Color, Line_width, DOT_STYLE_DFT);//3
-                Paint_DrawPoint(X_Center - YCurrent, Y_Center - XCurrent, Color, Line_width, DOT_STYLE_DFT);//4
-                Paint_DrawPoint(X_Center - XCurrent, Y_Center - YCurrent, Color, Line_width, DOT_STYLE_DFT);//5
-                Paint_DrawPoint(X_Center + XCurrent, Y_Center - YCurrent, Color, Line_width, DOT_STYLE_DFT);//6
-                Paint_DrawPoint(X_Center + YCurrent, Y_Center - XCurrent, Color, Line_width, DOT_STYLE_DFT);//7
-                Paint_DrawPoint(X_Center + YCurrent, Y_Center + XCurrent, Color, Line_width, DOT_STYLE_DFT);//0
+                self.paint_draw_point(x_center + x_current, y_center + y_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center - x_current, y_center + y_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center - y_current, y_center + x_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center - y_current, y_center - x_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center - x_current, y_center - y_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center + x_current, y_center - y_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center + y_current, y_center - x_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
+                self.paint_draw_point(x_center + y_current, y_center + x_current, color, dot_pixel.clone(), DOT_STYLE_DFT);
                 if esp < 0 {
                     esp += 4 * x_current + 6;
                 } else {
