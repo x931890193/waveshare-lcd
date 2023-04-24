@@ -7,3 +7,4 @@ pub mod lcd_1in54;
 pub mod lcd_2in54;
 pub mod lcd_2inch;
 pub mod lcd_2inch4;
+pub mod types;

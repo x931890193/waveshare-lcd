@@ -6,3 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+iocuddle = "0.1.1"
+spidev = "0.5.1"
+ioctl-rs = "0.2.0"
+sysfs_gpio = "0.6.1"
