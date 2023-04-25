@@ -10,10 +10,10 @@ use spidev::SpidevTransfer;
 pub struct LCD {
     pub device: HardwareSpi,
     pub inch: Inch,
-    pin_cs: Pin,
-    pin_rst: Pin,
-    pin_dc: Pin,
-    pin_bl: Pin,
+    pub pin_cs: Pin,
+    pub pin_rst: Pin,
+    pub pin_dc: Pin,
+    pub pin_bl: Pin,
 }
 
 impl LCD {

@@ -1,3 +1,4 @@
+use spidev::SpidevTransfer;
 use waveshare_lcd::config::dev_hardware_spi::HardwareSpi;
 use waveshare_lcd::gui::types::{BLACK, BLUE, DOT_STYLE_DFT, DotStyle, DrawFill, GREEN, RED, ROTATE_270, WHITE};
 use waveshare_lcd::lcd::lcd_2inch::LCD;
@@ -6,6 +7,7 @@ use waveshare_lcd::gui::gui_paint::Paint;
 use waveshare_lcd::gui::types::DotPixel::{DotPixel1x1, DotPixel2x2, DotPixel3x3, DotPixel4x4};
 use waveshare_lcd::gui::types::DotStyle::DotFillAround;
 use waveshare_lcd::gui::types::LineStyle::LineStyleSolid;
+use waveshare_lcd::lcd;
 
 
 fn main() {
@@ -13,6 +15,14 @@ fn main() {
     let spi = HardwareSpi::new("/dev/spidev1.0");
     let mut lcd = LCD::new(Inch::Lcd2inch {width:320, height:240 },  spi);
     lcd.init_dev();
+    lcd.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
+    // Define a data buffer to send and receive
+    let mut tx_buf =vec![0x55, 0xAA, 0x33, 0xCC];
+    let mut rx_buf = vec![0u8; 4];
+    // Send and receive data over SPI
+    let mut transfer = SpidevTransfer::read_write(&mut tx_buf, &mut rx_buf);
+    lcd.device.spi.transfer(&mut transfer).unwrap();
+    println!("{:?} {:?}", tx_buf, rx_buf);
     lcd.lcd_2in_clear(WHITE);
     lcd.sleep(10000);
     return;
