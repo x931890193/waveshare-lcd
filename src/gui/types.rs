@@ -2,19 +2,19 @@
 pub enum DotPixel {
     DotPixel1x1 = 1,
     // 1 x 1
-    DotPixel2x2,
+    DotPixel2x2 = 2,
     // 2 X 2
-    DotPixel3x3,
+    DotPixel3x3 = 3,
     // 3 X 3
-    DotPixel4x4,
+    DotPixel4x4 = 4,
     // 4 X 4
-    DotPixel5x5,
+    DotPixel5x5 = 5,
     // 5 X 5
-    DotPixel6x6,
+    DotPixel6x6 = 6,
     // 6 X 6
-    DotPixel7x7,
+    DotPixel7x7 = 7,
     // 7 X 7
-    DotPixel8x8,  // 8 X 8
+    DotPixel8x8 = 8  // 8 X 8
 }
 
 pub const DOT_PIXEL_DFT: DotPixel = DotPixel::DotPixel1x1;

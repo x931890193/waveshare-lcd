@@ -13,7 +13,7 @@ pub struct PaintTime {
 
 #[derive(Debug)]
 struct Paint {
-    image: *mut u16,
+    image: Vec<u16>,
     width: u16,
     height: u16,
     width_memory: u16,
@@ -30,7 +30,7 @@ struct Paint {
 
 impl Paint {
     //  init and Clear
-    pub fn paint_new_image(&mut self, image: *mut u16, width: u16, height: u16, rotate: u16, color: u16, depth: u16) {
+    pub fn paint_new_image(&mut self, image: Vec<u16>, width: u16, height: u16, rotate: u16, color: u16, depth: u16) {
         self.image = image;
         self.width_memory = width;
         self.height_memory = height;
@@ -48,7 +48,7 @@ impl Paint {
         }
     }
 
-    pub fn paint_select_image(&mut self, image: *mut u16) {
+    pub fn paint_select_image(&mut self, image: Vec<u16>) {
         self.image = image;
     }
 
@@ -88,7 +88,7 @@ impl Paint {
                 y = self.height_memory - x_point - 1;
             }
             _ => {
-                eprint!("errror");
+                eprint!("error");
                 return;
             }
         }
@@ -106,7 +106,7 @@ impl Paint {
             }
         }
         if self.depth == 1 {
-            let addr = x / 8 + y * self.width_byte;
+            let addr = (x / 8) as usize + (y * self.width_byte) as usize;
             let rdata = self.image[addr];
             if color == BLACK {
                 self.image[addr] = rdata & !(0x80 >> (x % 8));
@@ -114,7 +114,7 @@ impl Paint {
                 self.image[addr] = rdata | (0x80 >> (x % 8));
             }
         } else {
-            let addr = x + y * self.width_byte;
+            let addr = (x + y * self.width_byte) as usize;
             self.image[addr] = ((color << 8) & 0xff00) | (color >> 8);
         }
     }
@@ -122,7 +122,7 @@ impl Paint {
     pub fn paint_clear(&mut self, color: u16) {
         for y in 0..self.height_byte {
             for x in 0..self.width_byte {
-                let addr = x + y * self.width_byte;
+                let addr = (x + y * self.width_byte) as usize;
                 self.image[addr] = color;
             }
         }
@@ -143,17 +143,17 @@ impl Paint {
             return;
         }
         if dot_style == DotStyle::DotFillAround {
-            for xdir_num in 0..2 * &dot_pixel as u16 - 1 {
-                for ydir_num in 0..2 * &dot_pixel as u16 - 1 {
-                    if x_point + xdir_num - &dot_pixel < 0 || y_point + ydir_num - &dot_pixel < 0 {
+            for xdir_num in 0..2 * (dot_pixel.clone() as u16) - 1 {
+                for ydir_num in 0..2 * dot_pixel.clone() as u16 - 1 {
+                    if (x_point + xdir_num - (dot_pixel.clone() as u16)) < 0 || (y_point + ydir_num - (dot_pixel.clone() as u16)) < 0 {
                         break;
                     }
-                    self.paint_set_pixel(x_point + xdir_num - &dot_pixel, y_point + ydir_num - &dot_pixel, color)
+                    self.paint_set_pixel(x_point + xdir_num - dot_pixel.clone() as u16, y_point + ydir_num - dot_pixel.clone() as u16, color)
                 }
             }
         } else {
-            for xdir_num in 0..&dot_pixel as u16 - 1 {
-                for ydir_num in 0..&dot_pixel as u16 - 1 {
+            for xdir_num in 0..(dot_pixel.clone() as u16) - 1 {
+                for ydir_num in 0..(dot_pixel.clone() as u16) - 1 {
                     self.paint_set_pixel(x_point + xdir_num - 1, y_point + ydir_num - 1, color)
                 }
             }
@@ -278,21 +278,24 @@ impl Paint {
     pub fn paint_draw_time(&mut self, x_start: u16, y_start: u16, p_time: PaintTime, font: SFont, c_foreground: u16, c_bckground: u16) {}
 
     //pic
-    pub fn paint_draw_image(&mut self, image: &str, start_x: u16, start_y: u16, w: u16, h: u16) {
+    pub fn paint_draw_image(&mut self, image: &[u8], start_x: u16, start_y: u16, w: u16, h: u16) {
         for j in 0..h {
             for i in 0..w {
                 if start_x + i < self.width_memory && start_x < self.height_memory {
-                    self.paint_set_pixel(start_x + i, start_y + j, (image + j * w * 2 + i + i * 2 + 1) << 8 | (image + j*w*2 + i*2))
+                    let index = (j * w * 2 + i * 2) as usize;
+                    let pixel = ((image[index + 1] as u16) << 8) | (image[index] as u16);
+
+                    self.paint_set_pixel(start_x + i, start_y + j, pixel)
                 }
             }
         }
     }
 
-    pub fn paint_draw_bit_map(&mut self, image_buffer: *const u8) {
+    pub fn paint_draw_bit_map(&mut self, image_buffer: Vec<u16>) {
         for y in 0..self.height_byte {
             for x in 0..self.width_byte {
-                let addr = x + y * self.width_byte;
-                self.image[addr] = image_buffer[addr] as char;
+                let addr = (x + y * self.width_byte) as usize;
+                self.image[addr] = image_buffer[addr];
             }
         }
     }

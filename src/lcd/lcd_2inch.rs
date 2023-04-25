@@ -52,7 +52,96 @@ impl LCD {
         thread::sleep(ten_millis);
     }
 
-    pub fn lcd_in_init(&mut self) {}
+    pub fn lcd_in_init(&mut self) {
+        self.lcd_in_reset();
+        self.lcd_in_write_command(0x36);
+        self.lcd_in_write_data_byte(0x00);
+
+        self.lcd_in_write_command(0x3A);
+        self.lcd_in_write_data_byte(0x05);
+
+        self.lcd_in_write_command(0x21);
+        self.lcd_in_write_command(0x2A);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0x01);
+        self.lcd_in_write_data_byte(0x3F);
+
+        self.lcd_in_write_command(0x2B);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0xEF);
+
+        self.lcd_in_write_command(0xB2);
+        self.lcd_in_write_data_byte(0x0C);
+        self.lcd_in_write_data_byte(0x0C);
+        self.lcd_in_write_data_byte(0x00);
+        self.lcd_in_write_data_byte(0x33);
+        self.lcd_in_write_data_byte(0x33);
+
+        self.lcd_in_write_command(0xB7);
+        self.lcd_in_write_data_byte(0x35);
+
+        self.lcd_in_write_command(0xBB);
+        self.lcd_in_write_data_byte(0x1F);
+
+        self.lcd_in_write_command(0xC0);
+        self.lcd_in_write_data_byte(0x2C);
+
+        self.lcd_in_write_command(0xC2);
+        self.lcd_in_write_data_byte(0x01);
+
+        self.lcd_in_write_command(0xC3);
+        self.lcd_in_write_data_byte(0x12);
+
+        self.lcd_in_write_command(0xC4);
+        self.lcd_in_write_data_byte(0x20);
+
+        self.lcd_in_write_command(0xC6);
+        self.lcd_in_write_data_byte(0x0F);
+
+        self.lcd_in_write_command(0xD0);
+        self.lcd_in_write_data_byte(0xA4);
+        self.lcd_in_write_data_byte(0xA1);
+
+        self.lcd_in_write_command(0xE0);
+        self.lcd_in_write_data_byte(0xD0);
+        self.lcd_in_write_data_byte(0x08);
+        self.lcd_in_write_data_byte(0x11);
+        self.lcd_in_write_data_byte(0x08);
+        self.lcd_in_write_data_byte(0x0C);
+        self.lcd_in_write_data_byte(0x15);
+        self.lcd_in_write_data_byte(0x39);
+        self.lcd_in_write_data_byte(0x33);
+        self.lcd_in_write_data_byte(0x50);
+        self.lcd_in_write_data_byte(0x36);
+        self.lcd_in_write_data_byte(0x13);
+        self.lcd_in_write_data_byte(0x14);
+        self.lcd_in_write_data_byte(0x29);
+        self.lcd_in_write_data_byte(0x2D);
+
+        self.lcd_in_write_command(0xE1);
+        self.lcd_in_write_data_byte(0xD0);
+        self.lcd_in_write_data_byte(0x08);
+        self.lcd_in_write_data_byte(0x10);
+        self.lcd_in_write_data_byte(0x08);
+        self.lcd_in_write_data_byte(0x06);
+        self.lcd_in_write_data_byte(0x06);
+        self.lcd_in_write_data_byte(0x39);
+        self.lcd_in_write_data_byte(0x44);
+        self.lcd_in_write_data_byte(0x51);
+        self.lcd_in_write_data_byte(0x0B);
+        self.lcd_in_write_data_byte(0x16);
+        self.lcd_in_write_data_byte(0x14);
+        self.lcd_in_write_data_byte(0x2F);
+        self.lcd_in_write_data_byte(0x31);
+        self.lcd_in_write_command(0x21);
+
+        self.lcd_in_write_command(0x11);
+
+        self.lcd_in_write_command(0x29);
+    }
 
     pub fn lcd_in_reset(&self) {
         self.pin_cs.set_value(1).expect(format!("[lcd_in_init]: pin {} error!", self.pin_cs.get_pin()).as_str());
@@ -112,13 +201,16 @@ impl LCD {
     pub fn lcd_2in_set_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16) {
         self.lcd_in_write_command(0x2a);
         self.lcd_in_write_data_byte((x_start >> 8) as u8);
+        self.lcd_in_write_data_byte((x_start & 0xff) as u8);
         self.lcd_in_write_data_byte(((x_send - 1) >> 8) as u8);
-        self.lcd_in_write_data_byte(((x_send - 1) >> 0xff) as u8);
+        self.lcd_in_write_data_byte(((x_send - 1) & 0xff) as u8);
 
         self.lcd_in_write_command(0x2b);
         self.lcd_in_write_data_byte((y_start >> 8) as u8);
+        self.lcd_in_write_data_byte((y_start & 0xff) as u8);
+
         self.lcd_in_write_data_byte(((y_send - 1) >> 8) as u8);
-        self.lcd_in_write_data_byte(((y_send - 1) >> 0xff) as u8);
+        self.lcd_in_write_data_byte(((y_send - 1) & 0xff) as u8);
 
         self.lcd_in_write_command(0x2c);
     }

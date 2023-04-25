@@ -55,7 +55,7 @@ const SPI_READY: u8 = 0x80;                // Slave pull low to stop data transm
 
 impl HardwareSpi {
     // new HardwareSpi instance
-    fn new(device_name: &str) -> Self {
+    pub fn new(device_name: &str) -> Self {
         let mut spi = Spidev::open(device_name).expect(format!("open {} error", device_name).as_str());
         let options = SpidevOptions::new()
             .bits_per_word(8)
@@ -67,55 +67,4 @@ impl HardwareSpi {
             spi
         }
     }
-
-    /******************************************************************************
-    function:   SPI port initialization
-    parameter:
-        device_name : Device name
-    Info:
-        /dev/spidev0.0
-        /dev/spidev0.1
-    ******************************************************************************/
-    fn dev_hardware_spi_begin(&mut self, device_name: &str) {}
-
-    fn dev_hardware_spi_begin_set(device_name: &str, mode: SPIMode, speed:i32) {
-
-    }
-
-    fn dev_hardware_spi_end() {}
-
-    fn dev_hardware_spi_set_speed(speed: i32) {
-
-    }
-
-    fn dev_hardware_spi_transfer_byte(buf: &[u8]) {
-
-    }
-
-    fn dev_hardware_spi_transfer(buf: &[u8], len: u32) {
-
-    }
-
-    fn dev_hardware_spi_set_data_interval(us: u16) {
-
-    }
-
-    fn dev_hardware_spi_set_bus_mode(mode: BusMode) {
-
-    }
-
-    fn dev_hardware_spi_set_bit_order(order: SPIBitOrder) {
-
-    }
-
-    fn dev_hardware_spi_chip_select(cs_mode: SPIChipSelect) {
-
-    }
-
-    fn dev_hardware_spi_csen(en: SPICSEN) {}
-
-    fn dev_hardware_spi_mode(mode: SPIMode) {
-
-    }
-
 }
