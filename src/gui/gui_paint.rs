@@ -157,9 +157,9 @@ impl Paint {
         }
     }
 
-    pub fn paint_clear_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16) {
-        for y in y_start..y_send {
-            for x in x_start..x_send {
+    pub fn paint_clear_window(&mut self, x_start: u16, y_start: u16, x_end: u16, y_end: u16, color: u16) {
+        for y in y_start..y_end {
+            for x in x_start..x_end {
                 self.paint_set_pixel(x, y, color)
             }
         }
@@ -189,51 +189,84 @@ impl Paint {
         }
     }
 
-    pub fn paint_draw_line(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16, line_width: DotPixel, line_style: LineStyle) {
-        if x_start > self.width || y_start > self.height || x_send > self.width || y_send > self.height {
+    pub fn paint_draw_line(&mut self, x_start: u16, y_start: u16, x_end: u16, y_end: u16, color: u16, line_width: DotPixel, line_style: LineStyle) {
+        if x_start > self.width || y_start > self.height || x_end > self.width || y_end > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
-        let x_point = x_start;
-        let y_point = y_start;
+        let mut x_point = x_start;
+        let mut y_point = y_start;
         let dx = {
-            if x_send - x_start >= 0 {
-                x_send - x_start
+            if x_end - x_start >= 0 {
+                x_end - x_start
             } else {
-                x_start - x_send
+                x_start - x_end
             }
         };
         let dy = {
-            if y_send - y_start >= 0 {
-                y_send - y_start
+            if y_end - y_start >= 0 {
+                y_end - y_start
             } else {
-                y_start - y_send
+                y_start - y_end
             }
         };
-        let esp = dx + dy;
+        let x_add_way: i16 = {
+            if x_start < x_end {
+                1
+            } else {
+                -1
+            }
+        };
+
+        let y_add_way: i16 = {
+            if y_start < y_end {
+                1
+            } else {
+                -1
+            }
+        };
+
+        let mut esp = dx + dy;
         let mut dotted_len = 0;
         loop {
             dotted_len += 1;
             if line_style == LineStyleDotted && dotted_len % 3 == 0 {
-                self.paint_draw_point(x_point, y_point, IMAGE_BACKGROUND, line_width.clone(), DOT_STYLE_DFT)
+                self.paint_draw_point(x_point, y_point, IMAGE_BACKGROUND, line_width.clone(), DOT_STYLE_DFT);
+                dotted_len = 0;
+            } else {
+                self.paint_draw_point(x_point, y_point, color, line_width.clone(), DOT_STYLE_DFT)
+            }
+            if esp * 2 >= dy {
+                if x_point == y_end {
+                    break
+                }
+                esp += dy;
+                x_point += x_add_way as u16;
+            }
+            if esp * 2 <= dy {
+                if y_point == y_end {
+                    break
+                }
+                esp += dx;
+                y_point += y_add_way as u16;
             }
         }
     }
 
-    pub fn paint_draw_rectangle(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16, line_width: DotPixel, draw_fill: DrawFill) {
-        if x_start > self.width || y_start > self.height || x_send > self.width || y_send > self.height {
+    pub fn paint_draw_rectangle(&mut self, x_start: u16, y_start: u16, x_end: u16, y_end: u16, color: u16, line_width: DotPixel, draw_fill: DrawFill) {
+        if x_start > self.width || y_start > self.height || x_end > self.width || y_end > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
         if draw_fill == DrawFill::DrawFillFull {
-            for y_point in 0..y_send {
-                self.paint_draw_line(x_start, y_point, x_send, y_send, color, line_width.clone(), LineStyleSolid)
+            for y_point in 0..y_end {
+                self.paint_draw_line(x_start, y_point, x_end, y_end, color, line_width.clone(), LineStyleSolid)
             }
         } else {
-            self.paint_draw_line(x_start, y_start, x_send, y_send, color, line_width.clone(), LineStyleSolid);
-            self.paint_draw_line(x_start, y_start, x_start, y_send, color, line_width.clone(), LineStyleSolid);
-            self.paint_draw_line(x_send, y_send, x_send, y_start, color, line_width.clone(), LineStyleSolid);
-            self.paint_draw_line(x_send, y_send, x_start, y_send, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_start, y_start, x_end, y_end, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_start, y_start, x_start, y_end, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_end, y_end, x_end, y_start, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_end, y_end, x_start, y_end, color, line_width.clone(), LineStyleSolid);
         }
     }
 

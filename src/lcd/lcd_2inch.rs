@@ -37,11 +37,20 @@ impl LCD {
         return rx_buf[0];
     }
 
-    pub fn transfer(&mut self, buf: &[u8], len: u32) {
-        let tx_buf = buf;
-        {
-            let mut transfer = SpidevTransfer::write(&tx_buf);
+    pub fn transfer(&mut self, buf: &[u8]) {
+        let mut offset = 0;
+        let mut remaining = buf.len();
+        let max_transfer_size = ((10000000 / 8) as usize).min(4096);
+
+        // 分多次发送数据，每次发送不超过最大传输长度
+        while remaining > 0 {
+            let chunk_size = std::cmp::min(max_transfer_size as usize, remaining);
+            let chunk = &buf[offset..offset+chunk_size];
+            let mut transfer = SpidevTransfer::write(chunk);
             self.device.spi.transfer(&mut transfer).expect("[transfer] error");
+
+            offset += chunk_size;
+            remaining -= chunk_size;
         }
     }
 
@@ -201,19 +210,19 @@ impl LCD {
         self.pin_cs.set_value(0).expect(format!("[lcd_in_write_data_word]: pin {} error!", self.pin_cs.get_pin()).as_str());
     }
 
-    pub fn lcd_2in_set_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16) {
+    pub fn lcd_2in_set_window(&mut self, x_start: u16, y_start: u16, x_end: u16, y_end: u16) {
         self.lcd_in_write_command(0x2a);
         self.lcd_in_write_data_byte((x_start >> 8) as u8);
         self.lcd_in_write_data_byte((x_start & 0xff) as u8);
-        self.lcd_in_write_data_byte(((x_send - 1) >> 8) as u8);
-        self.lcd_in_write_data_byte(((x_send - 1) & 0xff) as u8);
+        self.lcd_in_write_data_byte(((x_end - 1) >> 8) as u8);
+        self.lcd_in_write_data_byte(((x_end - 1) & 0xff) as u8);
 
         self.lcd_in_write_command(0x2b);
         self.lcd_in_write_data_byte((y_start >> 8) as u8);
         self.lcd_in_write_data_byte((y_start & 0xff) as u8);
 
-        self.lcd_in_write_data_byte(((y_send - 1) >> 8) as u8);
-        self.lcd_in_write_data_byte(((y_send - 1) & 0xff) as u8);
+        self.lcd_in_write_data_byte(((y_end - 1) >> 8) as u8);
+        self.lcd_in_write_data_byte(((y_end - 1) & 0xff) as u8);
 
         self.lcd_in_write_command(0x2c);
     }
@@ -251,13 +260,13 @@ impl LCD {
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
         for i in 0..h {
-            self.transfer(&image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..], (w * 2) as u32)
+            self.transfer(&image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..])
         }
 
     }
 
-    pub fn lcd_2in_clear_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16) {
-        self.lcd_2in_set_window(x_start, y_start, x_send - 1, y_send - 1);
+    pub fn lcd_2in_clear_window(&mut self, x_start: u16, y_start: u16, x_end: u16, y_end: u16, color: u16) {
+        self.lcd_2in_set_window(x_start, y_start, x_end - 1, y_end - 1);
     }
 
     pub fn lcd_2in_display(&mut self, image:  Vec<u16>) {
@@ -281,12 +290,14 @@ impl LCD {
         }
         self.lcd_2in_set_window(0, 0, width, height);
         self.pin_dc.set_value(1).expect(format!("[lcd_2in_display]: pin {} error!", self.pin_dc.get_pin()).as_str());
-        for i in 0..height {
-            let start: usize = i as usize;
-            let end: usize = (i * 2 * width) as usize;
-            let buf = &image[start..end].iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
-            self.transfer(buf, (width * 2) as u32)
-        }
+        let buf = &image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
+        self.transfer(buf)
+        // for i in 0..height {
+        //     let start: usize = i as usize;
+        //     let end: usize = (i * 2 * width) as usize;
+        //     let buf = &image[start..end].iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
+        //     self.transfer(buf)
+        // }
     }
 
     pub fn lcd_2in_draw_paint(&mut self, x: u16, y: u16, color: u16) {
