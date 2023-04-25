@@ -12,25 +12,42 @@ pub struct PaintTime {
 }
 
 #[derive(Debug)]
-struct Paint {
-    image: Vec<u16>,
-    width: u16,
-    height: u16,
-    width_memory: u16,
-    height_memory: u16,
-    color: u16,
-    rotate: u16,
-    mirror: MirrorImage,
-    width_byte: u16,
-    height_byte: u16,
-    depth: u16,
-    mode: u8,
+pub struct Paint {
+    pub image: Vec<u16>,
+    pub width: u16,
+    pub height: u16,
+    pub width_memory: u16,
+    pub height_memory: u16,
+    pub color: u16,
+    pub rotate: u16,
+    pub mirror: MirrorImage,
+    pub width_byte: u16,
+    pub height_byte: u16,
+    pub depth: u16,
+    pub mode: u8,
 }
 
 
 impl Paint {
+
+    pub fn new() -> Self {
+        Paint{
+            image: vec![],
+            width: 0,
+            height: 0,
+            width_memory: 0,
+            height_memory: 0,
+            color: 0,
+            rotate: 0,
+            mirror: MirrorImage::MirrorNone,
+            width_byte: 0,
+            height_byte: 0,
+            depth: 0,
+            mode: 0
+        }
+    }
     //  init and Clear
-    pub fn paint_new_image(&mut self, image: Vec<u16>, width: u16, height: u16, rotate: u16, color: u16, depth: u16) {
+    pub fn paint_new_image(&mut self, image: Vec<u16>, width: u16, height: u16, rotate: u16, color: u16, depth: u16)  {
         self.image = image;
         self.width_memory = width;
         self.height_memory = height;

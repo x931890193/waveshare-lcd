@@ -37,10 +37,10 @@ impl LCD {
         return rx_buf[0];
     }
 
-    pub fn transfer(&mut self, buf: u8, len: u32) {
-        let tx_buf = [buf];
+    pub fn transfer(&mut self, buf: &[u8], len: u32) {
+        let tx_buf = buf;
         {
-            let mut transfer = SpidevTransfer::write(&tx_buf);
+            let mut transfer = SpidevTransfer::write(tx_buf);
             self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
     }
@@ -244,15 +244,14 @@ impl LCD {
             }
             _ => {}
         }
-        print!("wwww {}", w as usize);
-        let mut image = vec![0u16; w as usize];
+        let mut image = vec![0u8; w as usize];
         for i in 0..w {
-            image[i as usize] = color >>8 | (color&0xff)<<8;
+            image[i as usize] = (color >> 8 | (color & 0xff) << 8) as u8;
         }
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
         for i in 0..h {
-            self.transfer(image[i as usize] as u8, (w * 2) as u32)
+            self.transfer(image.as_mut_slice(), (w * 2) as u32)
         }
 
     }
@@ -261,7 +260,7 @@ impl LCD {
         self.lcd_2in_set_window(x_start, y_start, x_send - 1, y_send - 1);
     }
 
-    pub fn lcd_2in_display(&mut self, image: u16) {
+    pub fn lcd_2in_display(&mut self, image:  Vec<u16>) {
         let mut width = 0;
         let mut height = 0;
         match self.inch {
@@ -280,8 +279,11 @@ impl LCD {
                 eprint!("errir width, height!")
             }
         }
+        self.lcd_2in_set_window(0, 0, width, height);
         self.pin_dc.set_value(1).expect(format!("[lcd_2in_display]: pin {} error!", self.pin_dc.get_pin()).as_str());
-        self.lcd_2in_set_window(0, 0, width, height  )
+        for i in 0..height {
+            self.transfer(image[i..i* 2 * width], (width * 2) as u32)
+        }
     }
 
     pub fn lcd_2in_draw_paint(&mut self, x: u16, y: u16, color: u16) {
