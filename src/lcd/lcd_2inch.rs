@@ -243,7 +243,7 @@ impl LCD {
         }
         let mut image = Vec::with_capacity(w as usize);
         for i in 0..w {
-            image[i] = Color>>8 | (Color&0xff)<<8;
+            image[i] = color >>8 | (color&0xff)<<8;
         }
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
