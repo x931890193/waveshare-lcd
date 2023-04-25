@@ -244,7 +244,12 @@ impl Paint {
                 if x_add_way > 0 {
                     x_point += 1;
                 } else {
-                    x_point -= 1;
+                    if x_point > 1 {
+                        x_point -= 1;
+                    } else {
+                        x_point = 0
+                    }
+
                 }
             }
             if esp * 2 <= dy {
@@ -255,7 +260,11 @@ impl Paint {
                 if y_add_way > 0 {
                     y_point += 1;
                 } else {
-                    y_point -= 1
+                    if y_point > 1 {
+                        y_point -= 1
+                    }else {
+                        y_point = 0
+                    }
                 }
             }
         }
