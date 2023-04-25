@@ -237,7 +237,7 @@ impl Paint {
                 self.paint_draw_point(x_point, y_point, color, line_width.clone(), DOT_STYLE_DFT)
             }
             if esp * 2 >= dy {
-                if x_point == y_end {
+                if x_point >= y_end {
                     break
                 }
                 esp += dy;
@@ -248,7 +248,7 @@ impl Paint {
                 }
             }
             if esp * 2 <= dy {
-                if y_point == y_end {
+                if y_point >= y_end {
                     break
                 }
                 esp += dx;
