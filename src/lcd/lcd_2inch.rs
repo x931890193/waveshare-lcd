@@ -40,7 +40,7 @@ impl LCD {
     pub fn transfer(&mut self, buf: &[u8], len: u32) {
         let tx_buf = buf;
         {
-            let mut transfer = SpidevTransfer::write(tx_buf);
+            let mut transfer = SpidevTransfer::write(&tx_buf);
             self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
     }

@@ -131,7 +131,13 @@ impl Paint {
                 self.image[addr] = rdata | (0x80 >> (x % 8));
             }
         } else {
-            let addr = (x + y * self.width_byte) as usize;
+            let addr = match x.checked_mul(self.width_byte).and_then(|n| n.checked_add(y)) {
+                Some(result) => result as usize,
+                None => {
+                    // 处理溢出错误
+                    return;
+                }
+            };
             self.image[addr] = ((color << 8) & 0xff00) | (color >> 8);
         }
     }
@@ -139,7 +145,13 @@ impl Paint {
     pub fn paint_clear(&mut self, color: u16) {
         for y in 0..self.height_byte {
             for x in 0..self.width_byte {
-                let addr = (x + y * self.width_byte) as usize;
+                let addr = match x.checked_mul(self.width_byte).and_then(|n| n.checked_add(y)) {
+                    Some(result) => result as usize,
+                    None => {
+                        // 处理溢出错误
+                        return;
+                    }
+                };
                 self.image[addr] = color;
             }
         }
