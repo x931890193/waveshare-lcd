@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 spidev = "0.5.1"
 sysfs_gpio = "0.6.1"
-anyhow="1.0.70"
 
 
 [[example]]

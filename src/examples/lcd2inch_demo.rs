@@ -1,94 +1,52 @@
-use std::io::Write;
-use anyhow::Result;
+use waveshare_lcd::config::dev_hardware_spi::HardwareSpi;
+use waveshare_lcd::gui::types::{BLACK, BLUE, DOT_STYLE_DFT, DotStyle, DrawFill, GREEN, RED, ROTATE_270, WHITE};
+use waveshare_lcd::lcd::lcd_2inch::LCD;
+use waveshare_lcd::lcd::types::Inch;
+use waveshare_lcd::gui::gui_paint::Paint;
+use waveshare_lcd::gui::types::DotPixel::{DotPixel1x1, DotPixel2x2, DotPixel3x3, DotPixel4x4};
+use waveshare_lcd::gui::types::DotStyle::DotFillAround;
+use waveshare_lcd::gui::types::LineStyle::LineStyleSolid;
 
-use spidev::{Spidev, SpidevOptions, SpiModeFlags};
-use sysfs_gpio::{Direction, Error, Pin};
 
-const GPIOCHIP_BASE: u64 = 0;
-const LCD_CS: u64 = GPIOCHIP_BASE + 49;
-const LCD_RST: u64 = GPIOCHIP_BASE + 42;
-const LCD_DC: u64 = GPIOCHIP_BASE + 44;
-const LCD_BL: u64 = GPIOCHIP_BASE + 51;
+fn main() {
+    println!("2inch LCD demo...\r\n");
+    let spi = HardwareSpi::new("/dev/spidev1.0");
+    let mut lcd = LCD::new(Inch::Lcd2inch {width:320, height:240 },  spi);
+    lcd.init_dev();
+    lcd.bai();
+    // lcd.lcd_2in_clear(WHITE);
+    lcd.sleep(10000);
+    return;
+    lcd.set_black(1010);
 
-const SPI_MODE: SpiModeFlags = SpiModeFlags::SPI_MODE_0;
-const SPI_BITS_PER_WORD: u8 = 8;
-const SPI_SPEED: u32 = 10_000_000; // 10 MHz
+    let mut paint = Paint::new();
+    let image = vec![0; 320 * 240 * 2];
+    paint.paint_new_image(image, 320, 240, 90, WHITE, 16);
+    paint.paint_clear(WHITE);
+    paint.paint_set_rotate(ROTATE_270);
+    println!("drawing...\r\n");
 
-fn init_gpio() -> Result<(Pin, Pin, Pin, Pin)>   {
-    let cs = Pin::new(LCD_CS);
-    let rst = Pin::new(LCD_RST);
-    let dc = Pin::new(LCD_DC);
-    let bl = Pin::new(LCD_BL);
+    paint.paint_draw_point(5, 10, BLACK, DotPixel1x1, DOT_STYLE_DFT);
+    paint.paint_draw_point(5, 25, BLACK, DotPixel2x2, DOT_STYLE_DFT);
+    paint.paint_draw_point(5, 40, BLACK, DotPixel3x3, DOT_STYLE_DFT);
+    paint.paint_draw_point(5, 55, BLACK, DotPixel4x4, DOT_STYLE_DFT);
+    lcd.sleep(500);
 
-    cs.export().unwrap();
-    rst.export().unwrap();
-    dc.export().unwrap();
-    bl.export().unwrap();
+    paint.paint_draw_line(20, 10, 70, 60, RED, DotPixel1x1, LineStyleSolid);
+    paint.paint_draw_line(70, 10, 20, 60, RED, DotPixel1x1, LineStyleSolid);
+    paint.paint_draw_line(170, 15, 170, 55, RED, DotPixel1x1, LineStyleSolid);
+    paint.paint_draw_line(150, 35, 190, 35, RED, DotPixel1x1, LineStyleSolid);
 
-    cs.set_direction(Direction::Out).unwrap();
-    rst.set_direction(Direction::Out).unwrap();
-    dc.set_direction(Direction::Out).unwrap();
-    bl.set_direction(Direction::Out).unwrap();
-    Ok((cs, dc, rst, bl))
-}
+    paint.paint_draw_rectangle(20, 10, 70, 60, BLUE, DotPixel1x1, DrawFill::DrawFillEmpty);
+    paint.paint_draw_rectangle(85, 10, 130, 60, BLUE, DotPixel1x1, DrawFill::DrawFillFull);
 
-fn reset(rst: &Pin) {
-    rst.set_value(0).unwrap();
-    std::thread::sleep(std::time::Duration::from_millis(200));
-    rst.set_value(1).unwrap();
-    std::thread::sleep(std::time::Duration::from_millis(200));
-}
 
-fn init_display(spi: &mut Spidev, cs: &Pin, dc: &Pin) {
-    cs.set_value(0).unwrap();
+    paint.paint_draw_circle(170, 35, 20, GREEN, DotPixel1x1, DrawFill::DrawFillEmpty);
+    paint.paint_draw_circle(170, 85, 20, GREEN, DotPixel1x1, DrawFill::DrawFillFull);
 
-    spi.write(&[0x00, 0xAE]).unwrap(); // 关闭显示
-    spi.write(&[0x00, 0xD5, 0x50]).unwrap(); // 设置显示时钟分频
-    spi.write(&[0x00, 0xA8, 0x1F]).unwrap(); // 设置多路复用率
-    spi.write(&[0x00, 0xD3, 0x00]).unwrap(); // 设置显示偏移
-    spi.write(&[0x00, 0x40 | 0x00]).unwrap(); // 设置起始行
-    spi.write(&[0x00, 0x8D, 0x14]).unwrap(); // 设置充电泵电压
-    spi.write(&[0x00, 0x20, 0x00]).unwrap(); // 设置内存地址模式（水平模式）
-    spi.write(&[0x00, 0xA0 | 0x00]).unwrap(); // 设置段重定向（正常模式）
-    spi.write(&[0x00, 0xC8]).unwrap(); // 设置COM扫描方向（正常模式）
-    spi.write(&[0x00, 0xDA, 0x02]).unwrap(); // 设置COM引脚硬件配置
-    spi.write(&[0x00, 0x81, 0xCF]).unwrap(); // 设置对比度
-    spi.write(&[0x00, 0xD9, 0xF1]).unwrap(); // 设置预充电周期
-    spi.write(&[0x00, 0xDB, 0x40]).unwrap(); // 设置VCOMH电压
-    spi.write(&[0x00, 0xA4]).unwrap(); // 全部点亮
-    spi.write(&[0x00, 0xA6]).unwrap(); // 设置显示方式（正常模式）
-    spi.write(&[0x00, 0xAF]).unwrap(); // 打开显示
+    lcd.lcd_2in_display(paint.image.clone());
+    lcd.sleep(10000);
 
-    cs.set_value(1).unwrap();
-}
-
-fn set_pos(spi: &mut Spidev, cs: &Pin, dc: &Pin, x: u8, y: u8) {
-    cs.set_value(0).unwrap();
-    spi.write(&[0x00, 0x21, x, 127]).unwrap(); // 设置列地址范围
-    spi.write(&[0x00, 0x22, y, 63]).unwrap(); // 设置行地址范围
-
-    cs.set_value(1).unwrap();
-}
-
-fn fill_screen(spi: &mut Spidev, cs: &Pin, dc: &Pin, color: u8) {
-    set_pos(spi, cs, dc, 0, 0);
-    cs.set_value(0).unwrap();
-    for _ in 0..(128 * 64 / 8) {
-        spi.write(&[color]).unwrap();
-    }
-    cs.set_value(1).unwrap();
-}
-
-fn main(){
-    let (cs, dc, rst, bl) = init_gpio().unwrap();
-    let mut spi = Spidev::open("/dev/spidev1.0").unwrap();
-    let mut binding = SpidevOptions::new();
-    let options = binding
-        .bits_per_word(SPI_BITS_PER_WORD)
-        .max_speed_hz(SPI_SPEED)
-        .mode(SPI_MODE);
-    spi.configure(&options).unwrap();
-    reset(&rst);
-    init_display(&mut spi, &cs, &dc);
-    fill_screen(&mut spi, &cs, &dc, 0xff); // 填充白色
+    lcd.lcd_2in_display(paint.image.clone());
+    lcd.sleep(300);
 }
