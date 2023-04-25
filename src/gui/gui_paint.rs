@@ -174,7 +174,7 @@ impl Paint {
         if dot_style == DotStyle::DotFillAround {
             for xdir_num in 0..2 * (dot_pixel.clone() as u16) - 1 {
                 for ydir_num in 0..2 * dot_pixel.clone() as u16 - 1 {
-                    if (x_point + xdir_num - (dot_pixel.clone() as u16)) < 0 || (y_point + ydir_num - (dot_pixel.clone() as u16)) < 0 {
+                    if (x_point as i16 + xdir_num as i16 - (dot_pixel.clone() as i16)) < 0 || (y_point as i16 + ydir_num as i16 - (dot_pixel.clone() as i16)) < 0 {
                         break;
                     }
                     self.paint_set_pixel(x_point + xdir_num - dot_pixel.clone() as u16, y_point + ydir_num - dot_pixel.clone() as u16, color)
