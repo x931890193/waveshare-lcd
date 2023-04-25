@@ -273,7 +273,8 @@ impl LCD {
         }
         let mut image = vec![0u16; w as usize];
         for i in 0..w as usize {
-            image[i] = (color >> 8 | (color & 0xff) << 8);
+            // image[i] = (color >> 8 | (color & 0xff) << 8);
+            image[i] = 0;
             println!("1111-> {}", image[i])
         }
         self.lcd_2in_set_window(0, 0, w, h);
