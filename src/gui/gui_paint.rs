@@ -241,14 +241,14 @@ impl Paint {
                     break
                 }
                 esp += dy;
-                x_point += x_add_way as u16;
+                x_point += x_add_way;
             }
             if esp * 2 <= dy {
                 if y_point == y_end {
                     break
                 }
                 esp += dx;
-                y_point += y_add_way as u16;
+                y_point += y_add_way;
             }
         }
     }
