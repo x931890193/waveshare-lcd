@@ -268,7 +268,7 @@ impl LCD {
         }
         self.lcd_2in_set_window(0, 0, 320, 240);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
-
+        println!("self.pin_dc.get_value() {}", self.pin_dc.get_value().unwrap());
         let bytes: &[u8] = unsafe { // unsafe is necessary because from_raw_parts can cause undefined behavior
             std::slice::from_raw_parts(image.as_ptr() as *const u8, 320 * 2)
         };
