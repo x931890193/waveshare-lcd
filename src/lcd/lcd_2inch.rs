@@ -262,27 +262,21 @@ impl LCD {
         self.lcd_in_write_command(0x2c);
     }
     pub fn lcd_2in_clear(&mut self, color: u16) {
-        let mut w = 0u16;
-        let mut h = 0u16;
-        match self.inch {
-            Inch::Lcd2inch{width, height} => {
-                w = width;
-                h = height
-            }
-            _ => {}
+        let mut image = [0u16; 320];
+        for pixel in &mut image {
+            *pixel = ((color >> 8) | (color << 8)) as u16;
         }
-        let mut image = vec![0u16; w as usize];
-        for i in 0..w as usize {
-            // image[i] = (color >> 8 | (color & 0xff) << 8);
-            image[i] = 0;
-            println!("1111-> {}", image[i])
-        }
-        self.lcd_2in_set_window(0, 0, w, h);
+        self.lcd_2in_set_window(0, 0, 320, 240);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
-        let mut image = &image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
-        for i in 0..h {
-            let mut tr = SpidevTransfer::write(&mut image);
-            self.device.spi.transfer(&mut tr).expect("TODO: panic message");
+
+        let bytes: &[u8] = unsafe { // unsafe is necessary because from_raw_parts can cause undefined behavior
+            std::slice::from_raw_parts(image.as_ptr() as *const u8, 320 * 2)
+        };
+
+        let mut transfer = SpidevTransfer::write(bytes);
+
+        for _ in 0..240 {
+            self.device.spi.transfer(&mut transfer).expect("Failed to transfer data via SPI");
         }
 
     }
