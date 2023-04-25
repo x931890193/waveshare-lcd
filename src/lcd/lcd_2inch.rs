@@ -280,7 +280,8 @@ impl LCD {
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
         for i in 0..h {
-            self.transfer(&image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..])
+            let mut tr = SpidevTransfer::write(&mut image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..]);
+            self.device.spi.transfer(&mut tr)
         }
 
     }
