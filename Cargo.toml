@@ -10,3 +10,9 @@ iocuddle = "0.1.1"
 spidev = "0.5.1"
 ioctl-rs = "0.2.0"
 sysfs_gpio = "0.6.1"
+
+
+[[example]]
+name = "lcd2inch"
+path = "./src/examples"
+description = "A simple example that shows how to use waveshare-lcd."

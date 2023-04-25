@@ -1,7 +1,6 @@
-use crate::gui::types::DotPixel::DotPixel1x1;
-use crate::gui::types::DotStyle::DotFillAround;
 use crate::gui::types::LineStyle::{LineStyleDotted, LineStyleSolid};
 use super::types::*;
+use crate::fonts::font::SFont;
 
 pub struct PaintTime {
     pub year: u16,     //0000
@@ -37,13 +36,13 @@ impl Paint {
         self.height_memory = height;
         self.color = color;
         self.width_byte = width;
-        self.height_byte = Height;
+        self.height_byte = height;
         self.depth = depth;
         self.rotate = rotate;
         self.mirror = MirrorImage::MirrorNone;
         self.width = width;
         self.height = height;
-        if rotate != 0 && rotate != 180 {
+        if rotate != ROTATE_0 && rotate != ROTATE_180 {
             self.width = height;
             self.height = width;
         }
@@ -54,7 +53,7 @@ impl Paint {
     }
 
     pub fn paint_set_rotate(&mut self, rotate: u16) {
-        if rotate != 0 && rotate != 90 && rotate != 180 && rotate != 270 {
+        if rotate != ROTATE_0 && rotate != ROTATE_90 && rotate != ROTATE_180 && rotate != ROTATE_270 {
             println!("rotate = 0, 90, 180, 270\r\n");
             return;
         }
@@ -96,34 +95,34 @@ impl Paint {
         match self.mirror {
             MirrorImage::MirrorNone => {}
             MirrorImage::MirrorHorizontal => {
-                x = self.width_memory - X - 1;
+                x = self.width_memory - x - 1;
             }
             MirrorImage::MirrorVertical => {
-                y = self.height_memory - Y - 1;
+                y = self.height_memory - y - 1;
             }
             MirrorImage::MirrorOrigin => {
-                x = self.width_memory - X - 1;
-                y = self.height_memory - Y - 1;
+                x = self.width_memory - x - 1;
+                y = self.height_memory - y - 1;
             }
         }
         if self.depth == 1 {
             let addr = x / 8 + y * self.width_byte;
             let rdata = self.image[addr];
             if color == BLACK {
-                self.image[addr] = rdata & !(0x80 >> (X % 8));
+                self.image[addr] = rdata & !(0x80 >> (x % 8));
             } else {
-                self.image[addr] = rdata | (0x80 >> (X % 8));
+                self.image[addr] = rdata | (0x80 >> (x % 8));
             }
         } else {
             let addr = x + y * self.width_byte;
-            self.image[addr] = ((Color << 8) & 0xff00) | (Color >> 8);
+            self.image[addr] = ((color << 8) & 0xff00) | (color >> 8);
         }
     }
 
     pub fn paint_clear(&mut self, color: u16) {
         for y in 0..self.height_byte {
             for x in 0..self.width_byte {
-                let addr = x + y * self.WidthByte;
+                let addr = x + y * self.width_byte;
                 self.image[addr] = color;
             }
         }
@@ -139,13 +138,13 @@ impl Paint {
 
     //Drawing
     pub fn paint_draw_point(&mut self, x_point: u16, y_point: u16, color: u16, dot_pixel: DotPixel, dot_style: DotStyle) {
-        if x_point > self.width || y > self.height {
+        if x_point > self.width || y_point > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
         if dot_style == DotStyle::DotFillAround {
-            for xdir_num in 0..2 * &dot_pixel - 1 {
-                for ydir_num in 0..2 * &dot_pixel - 1 {
+            for xdir_num in 0..2 * &dot_pixel as u16 - 1 {
+                for ydir_num in 0..2 * &dot_pixel as u16 - 1 {
                     if x_point + xdir_num - &dot_pixel < 0 || y_point + ydir_num - &dot_pixel < 0 {
                         break;
                     }
@@ -153,8 +152,8 @@ impl Paint {
                 }
             }
         } else {
-            for xdir_num in 0..&dot_pixel - 1 {
-                for ydir_num in 0..&dot_pixel - 1 {
+            for xdir_num in 0..&dot_pixel as u16 - 1 {
+                for ydir_num in 0..&dot_pixel as u16 - 1 {
                     self.paint_set_pixel(x_point + xdir_num - 1, y_point + ydir_num - 1, color)
                 }
             }
@@ -162,7 +161,7 @@ impl Paint {
     }
 
     pub fn paint_draw_line(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16, line_width: DotPixel, line_style: LineStyle) {
-        if x_point > self.width || y > self.height || x_send > self.width || y_send > self.height {
+        if x_start > self.width || y_start > self.height || x_send > self.width || y_send > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
@@ -193,24 +192,24 @@ impl Paint {
     }
 
     pub fn paint_draw_rectangle(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16, color: u16, line_width: DotPixel, draw_fill: DrawFill) {
-        if x_point > self.width || y > self.height || x_send > self.width || y_send > self.height {
+        if x_start > self.width || y_start > self.height || x_send > self.width || y_send > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
-        if draw_fill {
+        if draw_fill == DrawFill::DrawFillFull {
             for y_point in 0..y_send {
                 self.paint_draw_line(x_start, y_point, x_send, y_send, color, line_width.clone(), LineStyleSolid)
             }
         } else {
-            self.paint_draw_line(x_start, y_start, x_send, y_send, color, line_width.clone(), LINE_STYLE_SOLID);
-            self.paint_draw_line(x_start, y_start, x_start, y_send, color, line_width.clone(), LINE_STYLE_SOLID);
-            self.paint_draw_line(x_send, y_send, x_send, y_start, color, line_width.clone(), LINE_STYLE_SOLID);
-            self.paint_draw_line(x_send, y_send, x_start, y_send, color, line_width.clone(), LINE_STYLE_SOLID);
+            self.paint_draw_line(x_start, y_start, x_send, y_send, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_start, y_start, x_start, y_send, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_send, y_send, x_send, y_start, color, line_width.clone(), LineStyleSolid);
+            self.paint_draw_line(x_send, y_send, x_start, y_send, color, line_width.clone(), LineStyleSolid);
         }
     }
 
     pub fn paint_draw_circle(&mut self, x_center: u16, y_center: u16, radius: u16, color: u16, dot_pixel: DotPixel, draw_fill: DrawFill) {
-        if x_point > self.width || y > self.height {
+        if x_center > self.width || y_center > self.height {
             eprint!("Paint_DrawPoint Input exceeds the normal display range\r\n");
             return;
         }
@@ -283,7 +282,7 @@ impl Paint {
         for j in 0..h {
             for i in 0..w {
                 if start_x + i < self.width_memory && start_x < self.height_memory {
-                    self.paint_set_pixel(start_x + i, start_y + j, (image + j * w * 2 + i + i * 2 + 1) << 8 | (image + j*W_Image*2 + i*2))
+                    self.paint_set_pixel(start_x + i, start_y + j, (image + j * w * 2 + i + i * 2 + 1) << 8 | (image + j*w*2 + i*2))
                 }
             }
         }

@@ -1,8 +1,3 @@
-use std::fmt::format;
-use std::fs::File;
-use spidev::spidevioctl::SpidevTransfer;
-use std::os::unix::io::AsRawFd;
-use ioctl_rs::ioctl;
 use spidev::{Spidev, SpidevOptions, SpiModeFlags};
 
 const BITS: u8 = 8;
@@ -14,10 +9,10 @@ const SPI_MODE_2: u8 = SPI_CPOL | 0;
 const SPI_MODE_3: u8 = SPI_CPOL | SPI_CPHA;
 
 enum SPIMode {
-    SpiMode0(u8),  /*!< CPOL = 0, CPHA = 0 */
-    SpiMode1(u8),  /*!< CPOL = 0, CPHA = 1 */
-    SpiMode2(u8),  /*!< CPOL = 1, CPHA = 0 */
-    SpiMode3(u8)   /*!< CPOL = 1, CPHA = 1 */
+    SpiMode0(u8),  /*< CPOL = 0, CPHA = 0 */
+    SpiMode1(u8),  /*< CPOL = 0, CPHA = 1 */
+    SpiMode2(u8),  /*< CPOL = 1, CPHA = 0 */
+    SpiMode3(u8)   /*< CPOL = 1, CPHA = 1 */
 }
 
 enum SPICSEN {
@@ -26,14 +21,14 @@ enum SPICSEN {
 }
 
 enum SPIChipSelect {
-    SpiCsModeLow(i32), /*!< Chip Select 0 */
-    SpiCsModeHigh(i32), /*!< Chip Select 1 */
-    SpiCsModeNone(i32), /*!< No CS, control it yourself */
+    SpiCsModeLow(i32), /*< Chip Select 0 */
+    SpiCsModeHigh(i32), /*< Chip Select 1 */
+    SpiCsModeNone(i32), /*< No CS, control it yourself */
 }
 
 enum SPIBitOrder {
-    SpiBitOrderLsbfirst = 0,  /*!< LSB First */
-    SpiBitOrderMsbfirst = 1   /*!< MSB First */
+    SpiBitOrderLsbfirst = 0,  /*< LSB First */
+    SpiBitOrderMsbfirst = 1   /*< MSB First */
 }
 
 enum BusMode {
@@ -61,13 +56,13 @@ const SPI_READY: u8 = 0x80;                // Slave pull low to stop data transm
 impl HardwareSpi {
     // new HardwareSpi instance
     fn new(device_name: &str) -> Self {
-        let mut spi = Spidev::open(device_name)?;
+        let mut spi = Spidev::open(device_name).expect(format!("open {} error", device_name).as_str());
         let options = SpidevOptions::new()
             .bits_per_word(8)
             .max_speed_hz(10000000)
             .mode(SpiModeFlags::SPI_MODE_0)
             .build();
-        spi.configure(&options)?;
+        spi.configure(&options).expect(format!("spi configure {} error", device_name).as_str());
         HardwareSpi{
             spi
         }

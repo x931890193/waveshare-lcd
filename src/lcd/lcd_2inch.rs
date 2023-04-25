@@ -1,11 +1,8 @@
-use std::io::Write;
 use crate::config::dev_hardware_spi::HardwareSpi;
 use crate::config::dev_config::*;
 use super::types::Inch;
 use sysfs_gpio::Pin;
 use std::{thread, time};
-use std::borrow::Borrow;
-use std::slice::from_mut;
 use spidev::SpidevTransfer;
 
 
@@ -35,7 +32,7 @@ impl LCD {
         let mut rx_buf = [0; 1];
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+            self.device.spi.transfer(&mut transfer).expect("[transfer_byte] error");
         }
         return rx_buf[0];
     }
@@ -45,7 +42,7 @@ impl LCD {
         let mut rx_buf = Vec::with_capacity(len as usize);
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+            self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
     }
 
@@ -73,7 +70,7 @@ impl LCD {
         let mut rx_buf = [0; 1];
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+           self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
         return rx_buf[0];
     }
@@ -85,7 +82,7 @@ impl LCD {
         let mut rx_buf = [0; 1];
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+           self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
         self.pin_cs.set_value(0).expect(format!("[lcd_in_write_data_byte]: pin {} error!", self.pin_cs.get_pin()).as_str());
     }
@@ -100,31 +97,32 @@ impl LCD {
         let mut rx_buf = [0; 1];
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+           self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
 
         let tx_buf = [data_low_byte];
         let mut rx_buf = [0; 1];
         {
             let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
-            self.device.spi.transfer(&mut transfer)?;
+           self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
         self.pin_cs.set_value(0).expect(format!("[lcd_in_write_data_word]: pin {} error!", self.pin_cs.get_pin()).as_str());
     }
 
-    pub fn lcd_2in_set_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_sned: u16) {
+    pub fn lcd_2in_set_window(&mut self, x_start: u16, y_start: u16, x_send: u16, y_send: u16) {
         self.lcd_in_write_command(0x2a);
         self.lcd_in_write_data_byte((x_start >> 8) as u8);
         self.lcd_in_write_data_byte(((x_send - 1) >> 8) as u8);
         self.lcd_in_write_data_byte(((x_send - 1) >> 0xff) as u8);
 
         self.lcd_in_write_command(0x2b);
-        self.lcd_in_write_data_byte((x_start >> 8) as u8);
-        self.lcd_in_write_data_byte(((x_send - 1) >> 8) as u8);
-        self.lcd_in_write_data_byte(((x_send - 1) >> 0xff) as u8);
+        self.lcd_in_write_data_byte((y_start >> 8) as u8);
+        self.lcd_in_write_data_byte(((y_send - 1) >> 8) as u8);
+        self.lcd_in_write_data_byte(((y_send - 1) >> 0xff) as u8);
 
         self.lcd_in_write_command(0x2c);
     }
+
     pub fn lcd_in_set_cursor(&mut self, x: u16, y: u16) {
         self.lcd_in_write_command(0x2a);
         self.lcd_in_write_command((x >> 8) as u8);
