@@ -197,14 +197,14 @@ impl Paint {
         let mut x_point = x_start;
         let mut y_point = y_start;
         let dx = {
-            if x_end - x_start >= 0 {
+            if x_end >= x_start {
                 x_end - x_start
             } else {
                 x_start - x_end
             }
         } as i16;
         let dy = {
-            if y_end - y_start >= 0 {
+            if y_end >= y_start {
                 y_end - y_start
             } else {
                 y_start - y_end
