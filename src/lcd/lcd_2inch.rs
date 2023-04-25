@@ -1,7 +1,7 @@
 use crate::config::dev_hardware_spi::HardwareSpi;
 use crate::config::dev_config::*;
 use super::types::Inch;
-use sysfs_gpio::Pin;
+use sysfs_gpio::{Pin, Direction};
 use std::{thread, time};
 use spidev::SpidevTransfer;
 
@@ -16,6 +16,16 @@ pub struct LCD {
 }
 
 impl LCD {
+
+    pub fn init_dev(&mut self) {
+        self.pin_cs.set_direction(Direction::Out).expect("[init_dev] error ");
+        self.pin_rst.set_direction(Direction::Out).expect("[init_dev] error ");
+        self.pin_dc.set_direction(Direction::Out).expect("[init_dev] error ");
+        self.pin_bl.set_direction(Direction::Out).expect("[init_dev] error ");
+        self.pin_cs.set_value(1).expect("[init_dev] error ");
+        self.pin_bl.set_value(1).expect("[init_dev] error ")
+    }
+
     pub fn new(inch: Inch, spi: HardwareSpi) -> LCD {
         return LCD {
             device: spi,

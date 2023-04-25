@@ -11,9 +11,10 @@ fn main() {
     println!("2inch LCD demo...\r\n");
     let spi = HardwareSpi::new("/dev/spidev1.0");
     let mut lcd = LCD::new(Inch::Lcd2inch {width:320, height:240 },  spi);
-
+    lcd.init_dev();
     lcd.lcd_in_init();
     lcd.lcd_2in_clear(WHITE);
+    lcd.sleep(10000);
     lcd.set_black(1010);
 
     let mut paint = Paint::new();
