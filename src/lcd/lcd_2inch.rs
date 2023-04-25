@@ -244,14 +244,14 @@ impl LCD {
             }
             _ => {}
         }
-        let mut image = vec![0u8; w as usize];
-        for i in 0..w {
-            image[i as usize] = (color >> 8 | (color & 0xff) << 8) as u8;
+        let mut image = vec![0u16; w as usize];
+        for i in 0..w as usize {
+            image[i] = (color >> 8 | (color & 0xff) << 8);
         }
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
         for i in 0..h {
-            self.transfer(image.as_mut_slice(), (w * 2) as u32)
+            self.transfer(&image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..], (w * 2) as u32)
         }
 
     }

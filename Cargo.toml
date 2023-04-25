@@ -14,5 +14,5 @@ sysfs_gpio = "0.6.1"
 
 [[example]]
 name = "lcd2inch"
-path = "./src/examples/lcd2inch.rs"
+path = "src/examples/lcd2inch_demo.rs"
 description = "A simple example that shows how to use waveshare-lcd."
