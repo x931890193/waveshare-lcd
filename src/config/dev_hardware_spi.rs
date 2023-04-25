@@ -61,7 +61,6 @@ impl HardwareSpi {
             .bits_per_word(8)
             .max_speed_hz(10000000)
             .mode(SpiModeFlags::SPI_MODE_0)
-            .lsb_first(true)
             .build();
         spi.configure(&options).expect(format!("spi configure {} error", device_name).as_str());
         HardwareSpi{

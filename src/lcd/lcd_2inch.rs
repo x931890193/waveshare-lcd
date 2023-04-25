@@ -274,6 +274,7 @@ impl LCD {
         let mut image = vec![0u16; w as usize];
         for i in 0..w as usize {
             image[i] = (color >> 8 | (color & 0xff) << 8);
+            println!("1111-> {}", image[i])
         }
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
