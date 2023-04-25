@@ -15,7 +15,7 @@ fn main() {
     lcd.set_black(1010);
 
     let mut paint = Paint::new();
-    let image = Vec::with_capacity((320 * 240 * 2) as usize);
+    let image = vec![0; 320 * 240 * 2];
     paint.paint_new_image(image, 320, 240, 90, WHITE, 16);
     paint.paint_clear(WHITE);
     paint.paint_set_rotate(ROTATE_270);
