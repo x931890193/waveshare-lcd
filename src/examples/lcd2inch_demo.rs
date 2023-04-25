@@ -14,13 +14,16 @@ fn main() {
     println!("2inch LCD demo...\r\n");
     let spi = HardwareSpi::new("/dev/spidev1.0");
     let mut lcd = LCD::new(Inch::Lcd2inch {width:320, height:240 },  spi);
+    lcd.device = HardwareSpi::new("/dev/spidev1.0");
+
     lcd.init_dev();
     lcd.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
     // Define a data buffer to send and receive
-    let mut tx_buf =vec![0x55, 0xAA, 0x33, 0xCC];
-    let mut rx_buf = vec![0u8; 4];
+    let mut tx_buf = [0x55, 0xAA, 0x33, 0xCC];
+    let mut rx_buf =  [0u8; 4];
     // Send and receive data over SPI
     let mut transfer = SpidevTransfer::read_write(&mut tx_buf, &mut rx_buf);
+    println!("{:?}", transfer);
     lcd.device.spi.transfer(&mut transfer).unwrap();
     println!("{:?} {:?}", tx_buf, rx_buf);
     lcd.lcd_2in_clear(WHITE);
