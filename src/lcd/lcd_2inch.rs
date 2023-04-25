@@ -248,7 +248,7 @@ impl LCD {
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
         for i in 0..h {
-            self.transfer(image[i], (w * 2) as u32)
+            self.transfer(image[i as usize], (w * 2) as u32)
         }
 
     }
