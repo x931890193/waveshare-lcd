@@ -39,11 +39,14 @@ impl LCD {
 
     pub fn transfer(&mut self, buf: u8, len: u32) {
         let tx_buf = [buf];
-        let mut rx_buf = Vec::with_capacity(len as usize);
         {
-            let mut transfer = SpidevTransfer::read_write(&tx_buf, &mut rx_buf);
+            let mut transfer = SpidevTransfer::write(&tx_buf);
             self.device.spi.transfer(&mut transfer).expect("[transfer] error");
         }
+    }
+
+    pub fn set_black(&mut self, value: u16) {
+        self.pin_bl.set_value(1).expect("[set_black], error");
     }
 
     pub fn sleep(&self, ms: u64) {
@@ -241,7 +244,8 @@ impl LCD {
             }
             _ => {}
         }
-        let mut image = Vec::with_capacity(w as usize);
+        print!("wwww {}", w as usize);
+        let mut image = vec![0u16; w as usize];
         for i in 0..w {
             image[i as usize] = color >>8 | (color&0xff)<<8;
         }
