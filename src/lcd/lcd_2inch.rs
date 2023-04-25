@@ -282,7 +282,10 @@ impl LCD {
         self.lcd_2in_set_window(0, 0, width, height);
         self.pin_dc.set_value(1).expect(format!("[lcd_2in_display]: pin {} error!", self.pin_dc.get_pin()).as_str());
         for i in 0..height {
-            self.transfer(image[i..i* 2 * width], (width * 2) as u32)
+            let start: usize = i as usize;
+            let end: usize = (i * 2 * width) as usize;
+            let buf = &image[start..end].iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
+            self.transfer(buf, (width * 2) as u32)
         }
     }
 
