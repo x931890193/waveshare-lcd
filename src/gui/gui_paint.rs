@@ -202,21 +202,21 @@ impl Paint {
             } else {
                 x_start - x_end
             }
-        };
+        } as i16;
         let dy = {
             if y_end - y_start >= 0 {
                 y_end - y_start
             } else {
                 y_start - y_end
             }
-        };
+        } as i16;
         let x_add_way: i16 = {
             if x_start < x_end {
                 1
             } else {
                 -1
             }
-        };
+        } as i16;
 
         let y_add_way: i16 = {
             if y_start < y_end {
