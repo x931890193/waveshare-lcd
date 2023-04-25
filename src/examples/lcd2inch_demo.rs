@@ -13,8 +13,7 @@ fn main() {
     let spi = HardwareSpi::new("/dev/spidev1.0");
     let mut lcd = LCD::new(Inch::Lcd2inch {width:320, height:240 },  spi);
     lcd.init_dev();
-    lcd.bai();
-    // lcd.lcd_2in_clear(WHITE);
+    lcd.lcd_2in_clear(WHITE);
     lcd.sleep(10000);
     return;
     lcd.set_black(1010);

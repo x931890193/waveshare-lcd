@@ -261,19 +261,6 @@ impl LCD {
 
         self.lcd_in_write_command(0x2c);
     }
-    pub fn bai(&mut self) {
-        self.pin_cs.set_value(0).unwrap();
-        self.device.spi.write(&[0x00, 0x21, 0, 127]).unwrap(); // 设置列地址范围
-        self.device.spi.write(&[0x00, 0x22, 0, 63]).unwrap(); // 设置行地址范围
-        self.pin_cs.set_value(1).unwrap();
-        self.pin_cs.set_value(0).unwrap();
-        for _ in 0..(128 * 64 / 8) {
-            self.device.spi.write(&[0xff]).unwrap();
-        }
-        self.pin_cs.set_value(1).unwrap();
-
-    }
-
     pub fn lcd_2in_clear(&mut self, color: u16) {
         let mut w = 0u16;
         let mut h = 0u16;
