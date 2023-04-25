@@ -279,9 +279,9 @@ impl LCD {
         }
         self.lcd_2in_set_window(0, 0, w, h);
         self.pin_dc.set_value(1).expect("[lcd_2in_clear] error");
-        let mut image = image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
+        let mut image = &image.iter().map(|&x| x as u8).collect::<Vec<u8>>()[..];
         for i in 0..h {
-            let mut tr = SpidevTransfer::read(&mut image);
+            let mut tr = SpidevTransfer::write(&mut image);
             self.device.spi.transfer(&mut tr).expect("TODO: panic message");
         }
 
