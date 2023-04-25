@@ -15,6 +15,7 @@ fn main() {
     lcd.lcd_in_init();
     lcd.lcd_2in_clear(WHITE);
     lcd.sleep(10000);
+    return;
     lcd.set_black(1010);
 
     let mut paint = Paint::new();
